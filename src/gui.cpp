@@ -137,45 +137,42 @@ void CalWindow::onNextClicked(){
     changeDays(setDate, frames);
 }
 
-void CalWindow::onAddEventClicked(){
-    auto AddEventDialog = new Gtk::Window();
-    AddEventDialogP = AddEventDialog;
-    AddEventDialog->set_transient_for(*this);
-    //AddEventDialog->set_size_request(300, 200);
-    AddEventDialog->set_title("Add Event");
+void CalWindow::onAddEventClicked(){    
+    addEventWindow = new AddEventWindow;
+    addEventWindow->show();
+};
 
-    Gtk::Box eventSetBox(Gtk::Orientation::VERTICAL, 5);
-    Gtk::Label explainlabel("Enter date and time of event below.");
+AddEventWindow::AddEventWindow()
+:   eventSetBox(Gtk::Orientation::VERTICAL, 5),
+    explainlabel("Enter date and time of event below."),
+    m_VBox(Gtk::Orientation::HORIZONTAL),
+    m_VBox_Day(Gtk::Orientation::VERTICAL),
+    m_VBox_Month(Gtk::Orientation::VERTICAL),
+    m_VBox_Year(Gtk::Orientation::VERTICAL),
+    m_VBox_Accelerated(Gtk::Orientation::VERTICAL),
+    m_VBox_Value(Gtk::Orientation::VERTICAL),
+    m_VBox_Digits(Gtk::Orientation::VERTICAL),
 
-    Gtk::Box m_VBox(Gtk::Orientation::HORIZONTAL);
-    Gtk::Box m_VBox_Day(Gtk::Orientation::VERTICAL);
-    Gtk::Box m_VBox_Month(Gtk::Orientation::VERTICAL);
-    Gtk::Box m_VBox_Year(Gtk::Orientation::VERTICAL);
-    Gtk::Box m_VBox_Accelerated(Gtk::Orientation::VERTICAL);
-    Gtk::Box m_VBox_Value(Gtk::Orientation::VERTICAL);
-    Gtk::Box m_VBox_Digits(Gtk::Orientation::VERTICAL);
+    m_Label_Day("Day: ", Gtk::Align::START),
+    m_Label_Month("Month: ", Gtk::Align::START),
+    m_Label_Year("Year: ", Gtk::Align::START),
 
-    Gtk::Label m_Label_Day("Day: ", Gtk::Align::START);
-    Gtk::Label m_Label_Month("Month: ", Gtk::Align::START);
-    Gtk::Label m_Label_Year("Year: ", Gtk::Align::START);
+    m_adjustment_day( Gtk::Adjustment::create(1.0, 1.0, 31.0, 1.0, 5.0, 0.0) ),
+    m_adjustment_month( Gtk::Adjustment::create(1.0, 1.0, 12.0, 1.0, 5.0, 0.0) ),
+    m_adjustment_year( Gtk::Adjustment::create(2024.0, 1.0, 2200.0, 1.0, 100.0, 0.0) ),
 
-    Glib::RefPtr<Gtk::Adjustment> m_adjustment_day( Gtk::Adjustment::create(1.0, 1.0, 31.0, 1.0, 5.0, 0.0) );
-    Glib::RefPtr<Gtk::Adjustment> m_adjustment_month( Gtk::Adjustment::create(1.0, 1.0, 12.0, 1.0, 5.0, 0.0) );
-    Glib::RefPtr<Gtk::Adjustment> m_adjustment_year( Gtk::Adjustment::create(2024.0, 1.0, 2200.0, 1.0, 100.0, 0.0) );
+    m_SpinButton_Day(m_adjustment_day),
+    m_SpinButton_Month(m_adjustment_month),
+    m_SpinButton_Year(m_adjustment_year),
 
-    Gtk::SpinButton m_SpinButton_Day(m_adjustment_day);
-    Gtk::SpinButton m_SpinButton_Month(m_adjustment_month);
-    Gtk::SpinButton m_SpinButton_Year(m_adjustment_year);
+    m_Entry(),
 
-    Gtk::Entry m_Entry;
+    AddButton("Add")
+{
     m_Entry.set_max_length(200);
     m_Entry.set_text("Enter activity");
     m_Entry.set_margin(5);
-    AddeventEntry = &m_Entry;
-    
-    Gtk::Button AddButton("Add");
-    AddButton.signal_clicked().connect( sigc::mem_fun(*this,
-              &CalWindow::onAddFinalEventClicked) );
+
     AddButton.set_margin(5);
 
     m_VBox_Day.set_margin(5);
@@ -194,22 +191,16 @@ void CalWindow::onAddEventClicked(){
     m_VBox.append(m_VBox_Month);
     m_VBox.append(m_VBox_Year);
 
-    AddEventDialog->set_child(eventSetBox);
+    set_child(eventSetBox);
 
     eventSetBox.append(explainlabel);
     eventSetBox.append(m_VBox);
     eventSetBox.append(m_Entry);
     eventSetBox.append(AddButton);
+}
 
+AddEventWindow::~AddEventWindow(){
 
-
-    AddEventDialog->show();
-};
-
-
-void CalWindow::onAddFinalEventClicked(){
-    std::cout << "done" << std::endl;
-    delete AddEventDialogP;
 }
 
 DateEvent::DateEvent(GDate* startTimeInput, Glib::ustring textInput, bool fullDayInput){
