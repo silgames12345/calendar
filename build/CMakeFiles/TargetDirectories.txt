@@ -1,0 +1,5 @@
+/home/sil/projects/graphics/calendar/build/CMakeFiles/edit_cache.dir
+/home/sil/projects/graphics/calendar/build/CMakeFiles/rebuild_cache.dir
+/home/sil/projects/graphics/calendar/build/src/CMakeFiles/calendar.dir
+/home/sil/projects/graphics/calendar/build/src/CMakeFiles/edit_cache.dir
+/home/sil/projects/graphics/calendar/build/src/CMakeFiles/rebuild_cache.dir

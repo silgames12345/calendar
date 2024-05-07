@@ -1,0 +1,1 @@
+/usr/bin/g++ -g CMakeFiles/calendar.dir/main.cpp.o CMakeFiles/calendar.dir/gui.cpp.o -o calendar  -lgtkmm-4.0 -lglibmm-2.68 -lharfbuzz -lpango-1.0 -lcairo-gobject -lglib-2.0 -lvulkan -lgraphene-1.0 -lgobject-2.0 -lgio-2.0 -lsigc-3.0 -lcairo -lpangomm-2.48 -lgiomm-2.68 -lcairomm-1.16 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lgtk-4
