@@ -5,6 +5,7 @@
 #include "gtkmm/spinbutton.h"
 #include "gtkmm/window.h"
 #include <cstddef>
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -29,7 +30,9 @@ CalWindow::CalWindow()
     prevButton("<"),
     addEventButton("+"),
     monthAndYear("<b>test</b>")
-{
+{   
+    events.dateEvents = new DateEvent*[EVENT_BUFFER_SIZE];
+
     set_title("Calendar");
     set_default_size(1000, 500);
 
@@ -105,7 +108,15 @@ void CalWindow::changeDays(GDate* shownDate, Gtk::Frame* frames[]){
                 frame->get_style_context()->add_provider(grayBackground, GTK_STYLE_PROVIDER_PRIORITY_USER);
             }
             frame->set_label(monthNames[monthHolder]+" "+std::to_string(day));
-            Gtk::Label label("test");
+            Gtk::Label label("");
+            for(int i = 0; i < events.length; i++){
+                int eventYear = g_date_get_year(events.dateEvents[i]->startTime);
+                int eventMonth = g_date_get_month(events.dateEvents[i]->startTime);
+                int eventDay = g_date_get_day(events.dateEvents[i]->startTime);
+                if(eventYear == year && eventMonth - 1 == monthHolder && eventDay == day){
+                    label.set_label(events.dateEvents[i]->text);
+                }
+            }
             frame->set_child(label);
             prevDay = day;
         }
@@ -113,8 +124,11 @@ void CalWindow::changeDays(GDate* shownDate, Gtk::Frame* frames[]){
     monthAndYear.set_markup("<b>" + std::to_string(year) + " " + monthNames[currentMonth-1] + "</b>");
 }
 
+void CalWindow::reset(){
+    changeDays(setDate, frames);
+}
+
 void CalWindow::onPrevClicked(){
-    std::cout << "going to previous month" << std::endl;
     int year = g_date_get_year(setDate);
     int Month = g_date_get_month(setDate)-1;
     if(Month == 0){
@@ -126,7 +140,6 @@ void CalWindow::onPrevClicked(){
 }
 
 void CalWindow::onNextClicked(){
-    std::cout << "going to next month" << std::endl;
     int year = g_date_get_year(setDate);
     int Month = g_date_get_month(setDate)+1;
     if(Month == 13){
@@ -137,74 +150,7 @@ void CalWindow::onNextClicked(){
     changeDays(setDate, frames);
 }
 
-void CalWindow::onAddEventClicked(){    
-    addEventWindow = new AddEventWindow;
+void CalWindow::onAddEventClicked(){  
+    addEventWindow = new AddEventWindow(&events);
     addEventWindow->show();
 };
-
-AddEventWindow::AddEventWindow()
-:   eventSetBox(Gtk::Orientation::VERTICAL, 5),
-    explainlabel("Enter date and time of event below."),
-    m_VBox(Gtk::Orientation::HORIZONTAL),
-    m_VBox_Day(Gtk::Orientation::VERTICAL),
-    m_VBox_Month(Gtk::Orientation::VERTICAL),
-    m_VBox_Year(Gtk::Orientation::VERTICAL),
-    m_VBox_Accelerated(Gtk::Orientation::VERTICAL),
-    m_VBox_Value(Gtk::Orientation::VERTICAL),
-    m_VBox_Digits(Gtk::Orientation::VERTICAL),
-
-    m_Label_Day("Day: ", Gtk::Align::START),
-    m_Label_Month("Month: ", Gtk::Align::START),
-    m_Label_Year("Year: ", Gtk::Align::START),
-
-    m_adjustment_day( Gtk::Adjustment::create(1.0, 1.0, 31.0, 1.0, 5.0, 0.0) ),
-    m_adjustment_month( Gtk::Adjustment::create(1.0, 1.0, 12.0, 1.0, 5.0, 0.0) ),
-    m_adjustment_year( Gtk::Adjustment::create(2024.0, 1.0, 2200.0, 1.0, 100.0, 0.0) ),
-
-    m_SpinButton_Day(m_adjustment_day),
-    m_SpinButton_Month(m_adjustment_month),
-    m_SpinButton_Year(m_adjustment_year),
-
-    m_Entry(),
-
-    AddButton("Add")
-{
-    m_Entry.set_max_length(200);
-    m_Entry.set_text("Enter activity");
-    m_Entry.set_margin(5);
-
-    AddButton.set_margin(5);
-
-    m_VBox_Day.set_margin(5);
-    m_VBox_Day.append(m_Label_Day);
-    m_VBox_Day.append(m_SpinButton_Day);
-
-    m_VBox_Month.set_margin(5);
-    m_VBox_Month.append(m_Label_Month);
-    m_VBox_Month.append(m_SpinButton_Month);
-
-    m_VBox_Year.set_margin(5);
-    m_VBox_Year.append(m_Label_Year);
-    m_VBox_Year.append(m_SpinButton_Year);
-
-    m_VBox.append(m_VBox_Day);
-    m_VBox.append(m_VBox_Month);
-    m_VBox.append(m_VBox_Year);
-
-    set_child(eventSetBox);
-
-    eventSetBox.append(explainlabel);
-    eventSetBox.append(m_VBox);
-    eventSetBox.append(m_Entry);
-    eventSetBox.append(AddButton);
-}
-
-AddEventWindow::~AddEventWindow(){
-
-}
-
-DateEvent::DateEvent(GDate* startTimeInput, Glib::ustring textInput, bool fullDayInput){
-    startTime = startTimeInput;
-    text = textInput;
-    fullDay = fullDayInput;
-}
