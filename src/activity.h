@@ -20,21 +20,16 @@ public:
 private:
 };
 
-struct Events {
-    DateEvent** dateEvents;
-    int length = 0;;
-};
+inline std::vector<DateEvent*> eventsArray;
 
 class AddEventWindow : public Gtk::Window {
 public:
-    AddEventWindow(Events* eventsI, GuiOptions* mainWindowI);
+    AddEventWindow(GuiOptions* mainWindowI);
     ~AddEventWindow();
 protected:
     void onAddButtonClicked();
 
     GuiOptions* mainWindow;
-
-    Events* events;
 
     Gtk::Box eventSetBox;
     Gtk::Label explainlabel;

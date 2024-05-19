@@ -8,8 +8,6 @@
 #define ROWS 6
 #define COLUMNS 7
 
-#define EVENT_BUFFER_SIZE 256
-
 struct Month {
     int id;
     int numDays;
@@ -25,7 +23,6 @@ public:
     void changeDays(GDate* shownDate, Gtk::Frame* frames[]);
     virtual void resetWindow() override;
 protected:
-    Events events;
     Gtk::Frame* frames[COLUMNS*ROWS];
     Gtk::Label monthAndYear;
 

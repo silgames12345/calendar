@@ -1,6 +1,6 @@
 #include "activity.h"
 
-AddEventWindow::AddEventWindow(Events* eventsI, GuiOptions* mainWindowI)
+AddEventWindow::AddEventWindow(GuiOptions* mainWindowI)
 :   eventSetBox(Gtk::Orientation::VERTICAL, 5),
     explainlabel("Enter date and time of event below."),
     m_VBox(Gtk::Orientation::HORIZONTAL),
@@ -27,7 +27,6 @@ AddEventWindow::AddEventWindow(Events* eventsI, GuiOptions* mainWindowI)
 
     AddButton("Add")
 {
-    events = eventsI;
     mainWindow = mainWindowI;
     AddButton.signal_clicked().connect( sigc::mem_fun(*this,
               &AddEventWindow::onAddButtonClicked) );
@@ -69,8 +68,8 @@ AddEventWindow::~AddEventWindow(){
 void AddEventWindow::onAddButtonClicked(){
     GDate* startEventDate = g_date_new();
     g_date_set_dmy(startEventDate, m_SpinButton_Day.get_value_as_int(), (GDateMonth)m_SpinButton_Month.get_value_as_int(), m_SpinButton_Year.get_value_as_int());
-    events->dateEvents[events->length] = new DateEvent(startEventDate, m_Entry.get_text(), 1);
-    events->length += 1;
+    DateEvent* thisEvent = new DateEvent(startEventDate, m_Entry.get_text(), 1);
+    eventsArray.push_back(thisEvent);
     mainWindow->resetWindow();
     delete this;
 }
@@ -79,4 +78,9 @@ DateEvent::DateEvent(GDate* startTimeInput, Glib::ustring textInput, bool fullDa
     startTime = startTimeInput;
     text = textInput;
     fullDay = fullDayInput;
+}
+
+DateEvent::~DateEvent(){
+    g_date_free(startTime);
+    g_date_free(endTime);
 }

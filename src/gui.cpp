@@ -1,15 +1,5 @@
 #include "gui.h"
-#include "gtkmm/adjustment.h"
-#include "gtkmm/button.h"
-#include "gtkmm/dialog.h"
-#include "gtkmm/enums.h"
-#include "gtkmm/label.h"
-#include "gtkmm/spinbutton.h"
-#include "gtkmm/window.h"
-#include <cstddef>
-#include <functional>
-#include <string>
-#include <vector>
+#include "activity.h"
 
 std::string monthNames[12]
     = { "Jan", 
@@ -33,8 +23,6 @@ CalWindow::CalWindow()
     addEventButton("+"),
     monthAndYear("<b>test</b>")
 {   
-    events.dateEvents = new DateEvent*[EVENT_BUFFER_SIZE];
-
     set_title("Calendar");
     set_default_size(1000, 500);
 
@@ -112,12 +100,12 @@ void CalWindow::changeDays(GDate* shownDate, Gtk::Frame* frames[]){
             frame->set_label(monthNames[monthHolder]+" "+std::to_string(day));
             Gtk::Box activityBox(Gtk::Orientation::VERTICAL);
             frame->set_child(activityBox);
-            for(int i = 0; i < events.length; i++){
-                int eventYear = g_date_get_year(events.dateEvents[i]->startTime);
-                int eventMonth = g_date_get_month(events.dateEvents[i]->startTime);
-                int eventDay = g_date_get_day(events.dateEvents[i]->startTime);
+            for(int i = 0; i < eventsArray.size(); i++){
+                int eventYear = g_date_get_year(eventsArray[i]->startTime);
+                int eventMonth = g_date_get_month(eventsArray[i]->startTime);
+                int eventDay = g_date_get_day(eventsArray[i]->startTime);
                 if(eventYear == year && eventMonth - 1 == monthHolder && eventDay == day){
-                    Gtk::Button activityButton(events.dateEvents[i]->text);
+                    Gtk::Button activityButton(eventsArray[i]->text);
                     activityBox.append(activityButton);
                 }
             }
@@ -154,6 +142,6 @@ void CalWindow::onNextClicked(){
 }
 
 void CalWindow::onAddEventClicked(){  
-    addEventWindow = new AddEventWindow(&events, this);
+    addEventWindow = new AddEventWindow(this);
     addEventWindow->show();
 };
