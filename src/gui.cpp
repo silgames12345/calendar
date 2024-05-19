@@ -1,6 +1,8 @@
 #include "gui.h"
 #include "gtkmm/adjustment.h"
+#include "gtkmm/button.h"
 #include "gtkmm/dialog.h"
+#include "gtkmm/enums.h"
 #include "gtkmm/label.h"
 #include "gtkmm/spinbutton.h"
 #include "gtkmm/window.h"
@@ -108,16 +110,17 @@ void CalWindow::changeDays(GDate* shownDate, Gtk::Frame* frames[]){
                 frame->get_style_context()->add_provider(grayBackground, GTK_STYLE_PROVIDER_PRIORITY_USER);
             }
             frame->set_label(monthNames[monthHolder]+" "+std::to_string(day));
-            Gtk::Label label("");
+            Gtk::Box activityBox(Gtk::Orientation::VERTICAL);
+            frame->set_child(activityBox);
             for(int i = 0; i < events.length; i++){
                 int eventYear = g_date_get_year(events.dateEvents[i]->startTime);
                 int eventMonth = g_date_get_month(events.dateEvents[i]->startTime);
                 int eventDay = g_date_get_day(events.dateEvents[i]->startTime);
                 if(eventYear == year && eventMonth - 1 == monthHolder && eventDay == day){
-                    label.set_label(events.dateEvents[i]->text);
+                    Gtk::Button activityButton(events.dateEvents[i]->text);
+                    activityBox.append(activityButton);
                 }
             }
-            frame->set_child(label);
             prevDay = day;
         }
     }
