@@ -4,5 +4,5 @@ link_directories(
 include_directories(
     ${GTKMM_INCLUDE_DIRS}  )
 
-add_executable(calendar "main.cpp" "main.h" "gui.cpp" "gui.h")
+add_executable(calendar "main.cpp" "main.h" "gui.cpp" "gui.h" "activity.cpp" "activity.h")
 target_link_libraries(calendar ${GTKMM_LIBRARIES})
