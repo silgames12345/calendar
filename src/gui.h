@@ -1,5 +1,4 @@
 #pragma once
-#include "gtkmm/window.h"
 #include <string>
 #include <iostream>
 #include <vector>
@@ -8,17 +7,40 @@
 #define ROWS 6
 #define COLUMNS 7
 
-struct Month {
-    int id;
-    int numDays;
-    std::string name;
+#define EVENT_BUFFER_SIZE 256
+
+class GuiOptions {
+public:
+    virtual void resetWindow() = 0;
+};
+
+class DateEvent {
+public:
+    DateEvent(GDate* startTimeInput, Glib::ustring textInput, bool fullDayInput);
+    ~DateEvent();
+    Glib::ustring text;
+    GDate* startTime;
+    GDate* endTime;
+    bool fullDay = false;
+private:
+};
+
+struct Events {
+    DateEvent** dateEvents;
+    int length = 0;;
 };
 
 class AddEventWindow : public Gtk::Window {
 public:
-    AddEventWindow();
+    AddEventWindow(Events* eventsI, GuiOptions* mainWindowI);
     ~AddEventWindow();
 protected:
+    void onAddButtonClicked();
+
+    GuiOptions* mainWindow;
+
+    Events* events;
+
     Gtk::Box eventSetBox;
     Gtk::Label explainlabel;
 
@@ -47,15 +69,22 @@ protected:
     Gtk::Button AddButton;
 };
 
+struct Month {
+    int id;
+    int numDays;
+    std::string name;
+};
 
-class CalWindow : public Gtk::Window
+class CalWindow : public Gtk::Window, public GuiOptions
 {
 public:
     CalWindow();
     ~CalWindow() override;
-
-protected:
+    GDate *setDate = g_date_new();
     void changeDays(GDate* shownDate, Gtk::Frame* frames[]);
+    virtual void resetWindow() override;
+protected:
+    Events events;
     Gtk::Frame* frames[COLUMNS*ROWS];
     Gtk::Label monthAndYear;
 
@@ -69,7 +98,6 @@ protected:
     void onNextClicked();
     Gtk::Button addEventButton;
     void onAddEventClicked();
-    GDate *setDate = g_date_new();
 
     Glib::RefPtr<Gtk::CssProvider> grayBackground = Gtk::CssProvider::create();
     Glib::ustring grayBackgroundStyle = "* { background-color: #D6D6D6; }";
@@ -83,15 +111,4 @@ protected:
     AddEventWindow* addEventWindow = NULL;
 
     //Gtk::Dialog AddEventDialog;
-};
-
-class DateEvent {
-public:
-    DateEvent(GDate* startTimeInput, Glib::ustring textInput, bool fullDayInput);
-    ~DateEvent();
-private:
-    Glib::ustring text;
-    GDate* startTime;
-    GDate* endTime;
-    bool fullDay = false;
 };
