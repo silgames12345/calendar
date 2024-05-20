@@ -78,9 +78,16 @@ DateEvent::DateEvent(GDate* startTimeInput, Glib::ustring textInput, bool fullDa
     startTime = startTimeInput;
     text = textInput;
     fullDay = fullDayInput;
+    activityButton.set_label(text);
+    activityButton.signal_clicked().connect( sigc::mem_fun(*this,
+              &DateEvent::onButtonClicked) );
 }
 
 DateEvent::~DateEvent(){
     g_date_free(startTime);
     g_date_free(endTime);
+}
+
+void DateEvent::onButtonClicked(){
+    std::cout << "button with text: " << text << " clicked." << std::endl;
 }

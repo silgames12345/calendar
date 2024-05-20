@@ -23,6 +23,7 @@ public:
     void changeDays(GDate* shownDate, Gtk::Frame* frames[]);
     virtual void resetWindow() override;
 protected:
+    int eventIndex = 0;
     Gtk::Frame* frames[COLUMNS*ROWS];
     Gtk::Label monthAndYear;
 
@@ -36,6 +37,7 @@ protected:
     void onNextClicked();
     Gtk::Button addEventButton;
     void onAddEventClicked();
+    void onEventClicked();
 
     Glib::RefPtr<Gtk::CssProvider> grayBackground = Gtk::CssProvider::create();
     Glib::ustring grayBackgroundStyle = "* { background-color: #D6D6D6; }";

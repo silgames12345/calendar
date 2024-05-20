@@ -1,4 +1,5 @@
 #pragma once
+#include "gtkmm/button.h"
 #include <string>
 #include <iostream>
 #include <vector>
@@ -17,7 +18,9 @@ public:
     GDate* startTime;
     GDate* endTime;
     bool fullDay = false;
+    Gtk::Button activityButton;
 private:
+    void onButtonClicked();
 };
 
 inline std::vector<DateEvent*> eventsArray;

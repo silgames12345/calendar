@@ -101,12 +101,12 @@ void CalWindow::changeDays(GDate* shownDate, Gtk::Frame* frames[]){
             Gtk::Box activityBox(Gtk::Orientation::VERTICAL);
             frame->set_child(activityBox);
             for(int i = 0; i < eventsArray.size(); i++){
+                eventIndex = i;
                 int eventYear = g_date_get_year(eventsArray[i]->startTime);
                 int eventMonth = g_date_get_month(eventsArray[i]->startTime);
                 int eventDay = g_date_get_day(eventsArray[i]->startTime);
                 if(eventYear == year && eventMonth - 1 == monthHolder && eventDay == day){
-                    Gtk::Button activityButton(eventsArray[i]->text);
-                    activityBox.append(activityButton);
+                    activityBox.append(eventsArray[i]->activityButton);
                 }
             }
             prevDay = day;
@@ -145,3 +145,7 @@ void CalWindow::onAddEventClicked(){
     addEventWindow = new AddEventWindow(this);
     addEventWindow->show();
 };
+
+void CalWindow::onEventClicked(){
+    std::cout << "event clicked with index: " << std::endl;
+}
