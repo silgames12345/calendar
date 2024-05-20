@@ -1,4 +1,42 @@
 #include "activity.h"
+#include "glibmm/ustring.h"
+#include "gtkmm/enums.h"
+
+DateEventData::DateEventData(){
+
+}
+DateEventData::~DateEventData(){
+
+}
+
+ShowActivityWindow::ShowActivityWindow(DateEventData* dateEventDataI)
+:   mainBox(Gtk::Orientation::VERTICAL),
+    deleteButton("Delete Activity")
+{
+    dateEventData = dateEventDataI;
+    Gtk::Label title;
+    title.set_markup("<b>" + dateEventData->text + "</b>");
+    mainBox.append(title);
+    Gtk::Label bodyLabel;
+    bodyLabel.set_wrap(true);
+    bodyLabel.set_label(dateEventData->body);
+    mainBox.append(bodyLabel);
+    deleteButton.signal_clicked().connect( sigc::mem_fun(*this,
+              &ShowActivityWindow::onDeleteButtonClicked) );
+
+    mainBox.append(deleteButton);
+    set_child(mainBox);
+}
+
+ShowActivityWindow::~ShowActivityWindow(){
+
+}
+
+void ShowActivityWindow::onDeleteButtonClicked(){
+    dateEventData->deleted = true;
+    dateEventData->guiOptions->resetWindow();
+    delete this;
+}
 
 AddEventWindow::AddEventWindow(GuiOptions* mainWindowI)
 :   eventSetBox(Gtk::Orientation::VERTICAL, 5),
@@ -24,6 +62,7 @@ AddEventWindow::AddEventWindow(GuiOptions* mainWindowI)
     m_SpinButton_Year(m_adjustment_year),
 
     m_Entry(),
+    bodyEntry(),
 
     AddButton("Add")
 {
@@ -32,8 +71,12 @@ AddEventWindow::AddEventWindow(GuiOptions* mainWindowI)
               &AddEventWindow::onAddButtonClicked) );
 
     m_Entry.set_max_length(200);
-    m_Entry.set_text("Enter activity");
+    m_Entry.set_placeholder_text("Enter activity");
     m_Entry.set_margin(5);
+
+    bodyEntry.set_max_length(1000);
+    bodyEntry.set_placeholder_text("Enter body");
+    bodyEntry.set_margin(5);
 
     AddButton.set_margin(5);
 
@@ -58,6 +101,7 @@ AddEventWindow::AddEventWindow(GuiOptions* mainWindowI)
     eventSetBox.append(explainlabel);
     eventSetBox.append(m_VBox);
     eventSetBox.append(m_Entry);
+    eventSetBox.append(bodyEntry);
     eventSetBox.append(AddButton);
 }
 
@@ -68,15 +112,17 @@ AddEventWindow::~AddEventWindow(){
 void AddEventWindow::onAddButtonClicked(){
     GDate* startEventDate = g_date_new();
     g_date_set_dmy(startEventDate, m_SpinButton_Day.get_value_as_int(), (GDateMonth)m_SpinButton_Month.get_value_as_int(), m_SpinButton_Year.get_value_as_int());
-    DateEvent* thisEvent = new DateEvent(startEventDate, m_Entry.get_text(), 1);
+    DateEvent* thisEvent = new DateEvent(startEventDate, m_Entry.get_text(),bodyEntry.get_text() , 1);
+    thisEvent->guiOptions = mainWindow;
     eventsArray.push_back(thisEvent);
     mainWindow->resetWindow();
     delete this;
 }
 
-DateEvent::DateEvent(GDate* startTimeInput, Glib::ustring textInput, bool fullDayInput){
+DateEvent::DateEvent(GDate* startTimeInput, Glib::ustring textInput,Glib::ustring bodyInput , bool fullDayInput){
     startTime = startTimeInput;
     text = textInput;
+    body = bodyInput;
     fullDay = fullDayInput;
     activityButton.set_label(text);
     activityButton.signal_clicked().connect( sigc::mem_fun(*this,
@@ -89,5 +135,6 @@ DateEvent::~DateEvent(){
 }
 
 void DateEvent::onButtonClicked(){
-    std::cout << "button with text: " << text << " clicked." << std::endl;
+    showActivityWindow = new ShowActivityWindow(this);
+    showActivityWindow->show();
 }

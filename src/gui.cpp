@@ -105,7 +105,7 @@ void CalWindow::changeDays(GDate* shownDate, Gtk::Frame* frames[]){
                 int eventYear = g_date_get_year(eventsArray[i]->startTime);
                 int eventMonth = g_date_get_month(eventsArray[i]->startTime);
                 int eventDay = g_date_get_day(eventsArray[i]->startTime);
-                if(eventYear == year && eventMonth - 1 == monthHolder && eventDay == day){
+                if(eventYear == year && eventMonth - 1 == monthHolder && eventDay == day && !eventsArray[i]->deleted){
                     activityBox.append(eventsArray[i]->activityButton);
                 }
             }

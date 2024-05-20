@@ -1,5 +1,8 @@
 #pragma once
+#include "glibmm/ustring.h"
 #include "gtkmm/button.h"
+#include "gtkmm/window.h"
+#include <cstddef>
 #include <string>
 #include <iostream>
 #include <vector>
@@ -10,11 +13,33 @@ public:
     virtual void resetWindow() = 0;
 };
 
-class DateEvent {
+class DateEventData{
 public:
-    DateEvent(GDate* startTimeInput, Glib::ustring textInput, bool fullDayInput);
-    ~DateEvent();
+    DateEventData();
+    ~DateEventData();
     Glib::ustring text;
+    Glib::ustring body;
+    bool deleted = false;
+    GuiOptions* guiOptions = NULL;
+};
+
+class ShowActivityWindow : public Gtk::Window {
+public:
+    ShowActivityWindow(DateEventData* dateEventDataI);
+    ~ShowActivityWindow();
+private:
+    Gtk::Button deleteButton;
+    Gtk::Box mainBox;
+    DateEventData* dateEventData;
+    void onDeleteButtonClicked();
+};
+
+inline ShowActivityWindow* showActivityWindow = NULL;
+
+class DateEvent : public DateEventData {
+public:
+    DateEvent(GDate* startTimeInput, Glib::ustring textInput, Glib::ustring bodyInput, bool fullDayInput);
+    ~DateEvent();
     GDate* startTime;
     GDate* endTime;
     bool fullDay = false;
@@ -58,6 +83,8 @@ protected:
     Gtk::SpinButton m_SpinButton_Year;
 
     Gtk::Entry m_Entry;
+    Gtk::Entry bodyEntry;
 
     Gtk::Button AddButton;
 };
+
