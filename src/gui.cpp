@@ -60,6 +60,9 @@ CalWindow::CalWindow()
 
     //get current date
     changeDays(setDate, frames);
+
+    //get activities
+    readActivities(getenv("HOME") + SAVE_FILE_PATH);
 }
 
 CalWindow::~CalWindow(){

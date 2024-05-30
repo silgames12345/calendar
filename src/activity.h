@@ -1,12 +1,11 @@
 #pragma once
-#include "glibmm/ustring.h"
-#include "gtkmm/button.h"
-#include "gtkmm/window.h"
-#include <cstddef>
 #include <string>
+#include <fstream>
 #include <iostream>
 #include <vector>
 #include <gtkmm.h>
+
+inline std::string SAVE_FILE_PATH =  "/.local/share/calendar/activities.af";
 
 class GuiOptions {
 public:
@@ -88,3 +87,5 @@ protected:
     Gtk::Button AddButton;
 };
 
+void saveActivities(std::string path);
+void readActivities(std::string path);

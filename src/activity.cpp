@@ -1,6 +1,11 @@
 #include "activity.h"
 #include "glibmm/ustring.h"
 #include "gtkmm/enums.h"
+#include <cstdint>
+#include <cstdlib>
+#include <fstream>
+#include <ios>
+#include <sys/types.h>
 
 DateEventData::DateEventData(){
 
@@ -115,6 +120,7 @@ void AddEventWindow::onAddButtonClicked(){
     DateEvent* thisEvent = new DateEvent(startEventDate, m_Entry.get_text(),bodyEntry.get_text() , 1);
     thisEvent->guiOptions = mainWindow;
     eventsArray.push_back(thisEvent);
+    saveActivities(getenv("HOME") + SAVE_FILE_PATH);
     mainWindow->resetWindow();
     delete this;
 }
@@ -137,4 +143,86 @@ DateEvent::~DateEvent(){
 void DateEvent::onButtonClicked(){
     showActivityWindow = new ShowActivityWindow(this);
     showActivityWindow->show();
+}
+
+void saveActivities(std::string path){
+    std::ofstream saveFile(path, std::ios_base::trunc);
+
+    if (!saveFile.is_open()) {
+        std::cerr << "Error opening save file." << std::endl;
+        return;
+    }
+
+    uint8_t major = 0;
+    uint8_t minor = 1;
+    saveFile.write(reinterpret_cast<char*>(&major), sizeof(uint8_t));
+    saveFile.write(reinterpret_cast<char*>(&minor), sizeof(uint8_t));
+
+    for(int i = 0; i < eventsArray.size(); i++){
+        if(!eventsArray[i]->deleted){
+            uint16_t year = g_date_get_year(eventsArray[i]->startTime);
+            saveFile.write(reinterpret_cast<char*>(&year), sizeof(uint16_t));
+            uint8_t month = (int)g_date_get_month(eventsArray[i]->startTime);
+            saveFile.write(reinterpret_cast<char*>(&month), sizeof(uint8_t));
+            uint8_t day = g_date_get_day(eventsArray[i]->startTime);
+            saveFile.write(reinterpret_cast<char*>(&day), sizeof(uint8_t));
+            
+            uint16_t textSize = eventsArray[i]->text.length();
+            saveFile.write(reinterpret_cast<char*>(&textSize), sizeof(uint16_t));
+            saveFile.write(eventsArray[i]->text.c_str(), eventsArray[i]->text.length());
+
+            uint16_t bodySize = sizeof(char)*eventsArray[i]->body.length();
+            saveFile.write(reinterpret_cast<char*>(&bodySize), sizeof(uint16_t));
+            saveFile.write(eventsArray[i]->body.c_str(), eventsArray[i]->body.length());
+
+            saveFile.write(reinterpret_cast<char*>(&eventsArray[i]->fullDay), sizeof(bool));
+        }
+    }
+    saveFile.close();
+    std::cout << "activities saved" << std::endl;
+}
+
+void readActivities(std::string path){
+    std::ifstream saveFile(path);
+
+    if (!saveFile.is_open()) {
+        std::cerr << "Error opening save file." << std::endl;
+        return;
+    }
+    uint8_t major;
+    uint8_t minor;
+    
+    saveFile.read(reinterpret_cast<char*>(&major), sizeof(uint8_t));
+    saveFile.read(reinterpret_cast<char*>(&minor), sizeof(uint8_t));
+    std::cout << "opening save file with version: " << (int)major << "." << (int)minor << std::endl;
+
+    while(saveFile.peek() != EOF){
+        GDate* startEventDate = g_date_new();
+        uint16_t year;
+        uint8_t month;
+        uint8_t day;
+        saveFile.read(reinterpret_cast<char*>(&year), sizeof(uint16_t));
+        saveFile.read(reinterpret_cast<char*>(&month), sizeof(uint8_t));
+        saveFile.read(reinterpret_cast<char*>(&day), sizeof(uint8_t));
+        g_date_set_dmy(startEventDate, (int)day, (GDateMonth)(int)month, (int)year);
+
+        uint16_t tilteSize;
+        saveFile.read(reinterpret_cast<char*>(&tilteSize), sizeof(uint16_t));
+        char* titleChar = new char[(int)tilteSize];
+        saveFile.read(titleChar, (int)tilteSize);
+        Glib::ustring title;
+        title.assign(titleChar, titleChar+(int)tilteSize);
+
+        uint16_t bodySize;
+        saveFile.read(reinterpret_cast<char*>(&bodySize), sizeof(uint16_t));
+        char* bodyChar = new char[(int)bodySize];
+        saveFile.read(bodyChar, (int)bodySize);
+        Glib::ustring body;
+        body.assign(bodyChar, bodyChar+(int)bodySize);
+        bool isFullDay;
+        saveFile.read(reinterpret_cast<char*>(&isFullDay), sizeof(bool));
+        DateEvent* thisEvent = new DateEvent(startEventDate, title, body, isFullDay);
+        eventsArray.push_back(thisEvent);
+    }
+
 }
