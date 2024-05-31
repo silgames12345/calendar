@@ -1,5 +1,6 @@
 #include "gui.h"
 #include "activity.h"
+#include <cstddef>
 
 std::string monthNames[12]
     = { "Jan", 
@@ -58,11 +59,11 @@ CalWindow::CalWindow()
         }
     }
 
+    //get activities 
+    readActivities(getenv("HOME") + SAVE_FILE_PATH, this);
+
     //get current date
     changeDays(setDate, frames);
-
-    //get activities
-    readActivities(getenv("HOME") + SAVE_FILE_PATH);
 }
 
 CalWindow::~CalWindow(){
@@ -109,6 +110,7 @@ void CalWindow::changeDays(GDate* shownDate, Gtk::Frame* frames[]){
                 int eventMonth = g_date_get_month(eventsArray[i]->startTime);
                 int eventDay = g_date_get_day(eventsArray[i]->startTime);
                 if(eventYear == year && eventMonth - 1 == monthHolder && eventDay == day && !eventsArray[i]->deleted){
+                    eventsArray[i]->activityButton.unparent();
                     activityBox.append(eventsArray[i]->activityButton);
                 }
             }

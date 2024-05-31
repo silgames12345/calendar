@@ -88,4 +88,4 @@ protected:
 };
 
 void saveActivities(std::string path);
-void readActivities(std::string path);
+void readActivities(std::string path, GuiOptions* guiOptions);

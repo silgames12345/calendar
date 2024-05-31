@@ -40,6 +40,7 @@ ShowActivityWindow::~ShowActivityWindow(){
 void ShowActivityWindow::onDeleteButtonClicked(){
     dateEventData->deleted = true;
     dateEventData->guiOptions->resetWindow();
+    saveActivities(getenv("HOME") + SAVE_FILE_PATH);
     delete this;
 }
 
@@ -182,7 +183,7 @@ void saveActivities(std::string path){
     std::cout << "activities saved" << std::endl;
 }
 
-void readActivities(std::string path){
+void readActivities(std::string path, GuiOptions* guiOptions){
     std::ifstream saveFile(path);
 
     if (!saveFile.is_open()) {
@@ -222,6 +223,7 @@ void readActivities(std::string path){
         bool isFullDay;
         saveFile.read(reinterpret_cast<char*>(&isFullDay), sizeof(bool));
         DateEvent* thisEvent = new DateEvent(startEventDate, title, body, isFullDay);
+        thisEvent->guiOptions = guiOptions;
         eventsArray.push_back(thisEvent);
     }
 
