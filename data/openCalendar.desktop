@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Version=0.1
+Name=OpenCal
+Path=/usr/local/bin/OpenCal
+Exec=calendar
+Terminal=false

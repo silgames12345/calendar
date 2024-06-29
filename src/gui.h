@@ -8,12 +8,6 @@
 #define ROWS 6
 #define COLUMNS 7
 
-struct Month {
-    int id;
-    int numDays;
-    std::string name;
-};
-
 class CalWindow : public Gtk::Window, public GuiOptions
 {
 public:
